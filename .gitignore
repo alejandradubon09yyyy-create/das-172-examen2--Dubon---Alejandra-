@@ -2,3 +2,18 @@
 *.temp
 *.log
 .vscode/
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de entorno virtual
+venv/
+env/
+ENV/
+.venv/
+
+# Configuración de VS Code y archivos de sistema
+.vscode/
+.DS_Store
+Thumbs.db 
