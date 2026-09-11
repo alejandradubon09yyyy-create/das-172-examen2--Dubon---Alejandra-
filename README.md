@@ -33,29 +33,36 @@ II. Diagrama de Arquitectura Modular
 
 La solución sigue un patrón simple: un script principal orquesta llamadas a módulos puros, y cada módulo solo recibe datos, los procesa, y devuelve un resultado — nunca modifica lo que recibe ni depende de variables externas.
 
-matriz_cargas,matriz_capacidades
-True / False
-si es válido, continúa
-matriz_cargas,matriz_capacidades
-matriz_porcentajes,coordenadas_sobrecargadas
-matriz_cargas, tolerancia_kg
-vector_pesos_fila,desbalance_kg, balance_ok
-matriz_porcentajes, k, p
-submatriz_kxp
-Script Principalmain.py
-Módulo 1Validación Dimensional
-Módulo 2Ocupación y Sobrecarga
-Módulo 3Balance y Simetría
-Módulo 4Submatriz Crítica
-Reporte Finalformateado en consola
-Cómo se comunican los módulos entre sí
-Paso	Quién llama	Qué envía	Qué recibe de vuelta
-1	main → Módulo 1	las dos matrices originales	True/False (¿son válidas?)
-2	main → Módulo 2	las dos matrices ya validadas	matriz nueva de % + lista de celdas sobrecargadas
-3	main → Módulo 3	matriz de cargas + tolerancia	vector de pesos por fila + desbalance + aprobado/rechazado
-4	main → Módulo 4	matriz de % (salida del Módulo 2) + tamaño de ventana k×p	la submatriz más crítica encontrada
 
-Regla clave de diseño: ningún módulo llama a otro módulo directamente. Todos "hablan" a través del script principal, que actúa como intermediario. Esto se hace a propósito: cada función se puede probar, entender y reemplazar de forma aislada, sin tener que rastrear una cadena de llamadas internas. Además, como ninguna función modifica las matrices que recibe (son funciones puras), el mismo dato de entrada siempre produce el mismo resultado — lo cual es indispensable para poder probarlas con casos de prueba fijos.
+II. Diagrama de Arquitectura Modular
+
+La solución sigue un patrón modular basado en funciones puras e inmutabilidad: el script principal (`main.py`) orquesta las llamadas a cada módulo, pasando matrices como argumentos y recibiendo nuevas estructuras sin alterar los datos originales.
+
+```text
+               +----------------------------------+
+               |        main.py / Script          |
+               +----------------------------------+
+                                |
+        +-----------------------+-----------------------+
+        |                       |                       |
+        v                       v                       v
++------------------+  +-------------------+  +--------------------+
+|  validar_matriz  |  | calcular_ocupacion|  | evaluar_balance    |
+|   _coherencia    |  |   _sobrecargas    |  |     _lateral       |
++------------------+  +-------------------+  +--------------------+
+        |                       |                       |
+   [Bool/Valid]        [MatrizOcupacion %]     [VectorPesosFilas]
+                       [ListaSobrecargas]      [DesbalanceKg, Bool]
+                                                        |
+                                                        v
+                                             +--------------------+
+                                             | extraer_submatriz  |
+                                             |     _critica       |
+                                             +--------------------+
+                                                        |
+                                               [Submatriz k x p]
+
+
 
 III. Análisis de Complejidad Computacional
 ¿Por qué O(N × M) en tiempo?
